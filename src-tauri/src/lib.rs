@@ -1,4 +1,5 @@
 use tauri::Manager;
+use tauri_plugin_window_state::StateFlags;
 
 #[cfg(target_os = "macos")]
 use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial};
@@ -9,14 +10,19 @@ use window_vibrancy::apply_acrylic;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        // Persist window size & position across launches
-        .plugin(tauri_plugin_window_state::Builder::new().build())
+        // Persist window position & size across launches.
+        // Exclude MAXIMIZED + FULLSCREEN so a previously fullscreened window
+        // never restores to full screen on next launch.
+        .plugin(
+            tauri_plugin_window_state::Builder::new()
+                .with_state_flags(StateFlags::SIZE | StateFlags::POSITION)
+                .build(),
+        )
         .setup(|app| {
             let window = app.get_webview_window("main").unwrap();
 
-            // Clamp window size — the window-state plugin may have saved an
-            // old oversized (full-screen) size from before this fix. Reset to
-            // the default if the restored size is unreasonably large.
+            // Safety clamp: if an oversized state somehow slipped through,
+            // reset to the default widget size.
             if let (Ok(size), Ok(scale)) = (window.inner_size(), window.scale_factor()) {
                 let logical_w = size.width as f64 / scale;
                 let logical_h = size.height as f64 / scale;
@@ -48,13 +54,15 @@ pub fn run() {
             }
 
             // ── macOS: native frosted-glass (Sidebar material) ──────────
+            // With decorations:true + titleBarStyle:overlay the OS draws its
+            // own rounded corners, so we pass None for the corner radius.
             #[cfg(target_os = "macos")]
             {
                 apply_vibrancy(
                     &window,
                     NSVisualEffectMaterial::Sidebar,
                     None,
-                    Some(12.0), // corner radius matches CSS
+                    None, // let macOS handle corner radius
                 )
                 .expect("Failed to apply macOS vibrancy");
             }
