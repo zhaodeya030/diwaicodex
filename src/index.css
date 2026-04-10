@@ -6,7 +6,44 @@
   padding: 0;
 }
 
-/* Transparent so Tauri's native vibrancy shows through */
+/* ── Design tokens (light = browser preview) ───────────── */
+:root {
+  --fg:          #1c1c1e;
+  --fg2:         #8e8e93;
+  --fg3:         #c7c7cc;
+  --border:      rgba(0, 0, 0, 0.07);
+  --hover:       rgba(118, 118, 128, 0.05);
+  --input-bg:    rgba(118, 118, 128, 0.09);
+  --input-focus: rgba(118, 118, 128, 0.13);
+  --btn-subtle:  rgba(118, 118, 128, 0.08);
+  --accent:      #007aff;
+  --accent-bg:   rgba(0, 122, 255, 0.07);
+  --accent-ring: rgba(0, 122, 255, 0.25);
+  --green:       #34c759;
+  --red:         #ff3b30;
+  --check-ring:  #d1d1d6;
+  --toggle-active-bg: white;
+}
+
+/* ── Dark tokens (Tauri app) ────────────────────────────── */
+html[data-tauri='1'] {
+  --fg:          rgba(255, 255, 255, 0.92);
+  --fg2:         rgba(255, 255, 255, 0.48);
+  --fg3:         rgba(255, 255, 255, 0.28);
+  --border:      rgba(255, 255, 255, 0.09);
+  --hover:       rgba(255, 255, 255, 0.06);
+  --input-bg:    rgba(255, 255, 255, 0.09);
+  --input-focus: rgba(255, 255, 255, 0.13);
+  --btn-subtle:  rgba(255, 255, 255, 0.07);
+  --accent:      #0a84ff;
+  --accent-bg:   rgba(10, 132, 255, 0.14);
+  --accent-ring: rgba(10, 132, 255, 0.32);
+  --green:       #30d158;
+  --red:         #ff453a;
+  --check-ring:  rgba(255, 255, 255, 0.32);
+  --toggle-active-bg: rgba(255, 255, 255, 0.15);
+}
+
 html,
 body {
   background: transparent;
@@ -14,16 +51,15 @@ body {
     Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #1c1c1e;
+  color: var(--fg);
   line-height: 1.5;
-  overflow: hidden; /* no scrollbar on the outer window */
+  overflow: hidden;
 }
 
 #root {
   height: 100%;
 }
 
-/* Tauri drag regions */
 [data-tauri-drag-region] {
   -webkit-user-select: none;
   user-select: none;

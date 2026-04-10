@@ -5,15 +5,16 @@
   align-items: flex-start;
   height: 100vh;
   background: transparent;
-  padding: 0; /* widget fills the Tauri window */
+  padding: 0;
 }
 
 /* ===== Widget ===== */
 .widget {
   width: 100%;
   height: 100%;
-  /* Browser fallback: frosted glass via CSS */
-  background: rgba(255, 255, 255, 0.72);
+  position: relative;
+  /* Browser fallback: light frosted glass */
+  background: rgba(255, 255, 255, 0.78);
   backdrop-filter: blur(40px) saturate(180%);
   -webkit-backdrop-filter: blur(40px) saturate(180%);
   border-radius: 0;
@@ -22,21 +23,22 @@
   overflow: hidden;
 }
 
-/* When running inside Tauri: let native vibrancy show through.
-   border-radius: 0 because the OS window frame handles corner rounding. */
+/* Tauri app: dark semi-transparent, let HudWindow vibrancy show through.
+   CSS border-radius provides the rounded corners (decorations:false). */
 html[data-tauri='1'] .widget {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(30, 30, 40, 0.55);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  border-radius: 0;
+  border-radius: 16px;
+  box-shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.08) inset;
 }
 
-/* Hide summary text in Tauri collapsed mode — only the title bar shows */
+/* Hide summary text when collapsed — title bar only */
 html[data-tauri='1'] .widget-collapsed-summary {
   display: none;
 }
 
-/* When running in browser (not Tauri), show as a centered card */
+/* Browser card view */
 @media (min-width: 420px) {
   .app {
     justify-content: center;
@@ -60,8 +62,8 @@ html[data-tauri='1'] .widget-collapsed-summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 18px 14px;
-  border-bottom: 0.5px solid rgba(0, 0, 0, 0.07);
+  padding: 14px 16px 12px;
+  border-bottom: 0.5px solid var(--border);
   flex-shrink: 0;
 }
 
@@ -82,10 +84,10 @@ html[data-tauri='1'] .widget-collapsed-summary {
 }
 
 .widget-title {
-  font-size: 19px;
+  font-size: 17px;
   font-weight: 700;
-  letter-spacing: -0.4px;
-  color: #1c1c1e;
+  letter-spacing: -0.3px;
+  color: var(--fg);
 }
 
 .widget-collapse-btn,
@@ -94,7 +96,7 @@ html[data-tauri='1'] .widget-collapsed-summary {
   background: none;
   border: none;
   cursor: pointer;
-  color: #8e8e93;
+  color: var(--fg2);
   padding: 6px;
   border-radius: 8px;
   display: flex;
@@ -106,14 +108,14 @@ html[data-tauri='1'] .widget-collapsed-summary {
 .widget-collapse-btn:hover,
 .widget-history-btn:hover,
 .widget-back-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: #1c1c1e;
+  background: var(--btn-subtle);
+  color: var(--fg);
 }
 
 .widget-collapsed-summary {
-  padding: 0 18px 14px;
+  padding: 0 16px 12px;
   font-size: 13px;
-  color: #8e8e93;
+  color: var(--fg2);
 }
 
 /* ===== Widget Body ===== */
@@ -128,21 +130,21 @@ html[data-tauri='1'] .widget-collapsed-summary {
 }
 
 .widget-body::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.10);
+  background: var(--border);
   border-radius: 2px;
 }
 
 /* ===== Sections ===== */
 .section {
-  padding: 8px 18px 10px;
+  padding: 8px 16px 10px;
 }
 
 .section-title {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.6px;
-  color: #8e8e93;
+  letter-spacing: 0.7px;
+  color: var(--fg2);
   margin-bottom: 8px;
   display: flex;
   align-items: center;
@@ -150,28 +152,28 @@ html[data-tauri='1'] .widget-collapsed-summary {
 }
 
 .done-count {
-  background: #34c759;
+  background: var(--green);
   color: white;
   font-size: 11px;
   font-weight: 600;
-  min-width: 20px;
-  height: 20px;
-  border-radius: 10px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 6px;
+  padding: 0 5px;
 }
 
 .section-divider {
   height: 0.5px;
-  background: rgba(0, 0, 0, 0.07);
-  margin: 4px 18px;
+  background: var(--border);
+  margin: 4px 16px;
 }
 
 .empty-hint {
   font-size: 13px;
-  color: #c7c7cc;
+  color: var(--fg3);
   padding: 10px 0;
   text-align: center;
 }
@@ -185,31 +187,31 @@ html[data-tauri='1'] .widget-collapsed-summary {
 
 .add-task-input {
   flex: 1;
-  padding: 9px 13px;
+  padding: 8px 12px;
   border: none;
-  border-radius: 11px;
-  background: rgba(118, 118, 128, 0.09);
-  font-size: 15px;
+  border-radius: 10px;
+  background: var(--input-bg);
+  font-size: 14px;
   font-family: inherit;
-  color: #1c1c1e;
+  color: var(--fg);
   outline: none;
   transition: background 0.15s ease;
 }
 
 .add-task-input:focus {
-  background: rgba(118, 118, 128, 0.13);
+  background: var(--input-focus);
 }
 
 .add-task-input::placeholder {
-  color: #c7c7cc;
+  color: var(--fg3);
 }
 
 .add-task-btn {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border: none;
-  border-radius: 11px;
-  background: #007aff;
+  border-radius: 10px;
+  background: var(--accent);
   color: white;
   font-size: 20px;
   font-weight: 300;
@@ -222,12 +224,12 @@ html[data-tauri='1'] .widget-collapsed-summary {
 }
 
 .add-task-btn:hover:not(:disabled) {
-  background: #0066d6;
+  opacity: 0.85;
 }
 
 .add-task-btn:disabled {
-  background: rgba(118, 118, 128, 0.12);
-  color: #c7c7cc;
+  background: var(--input-bg);
+  color: var(--fg3);
   cursor: default;
 }
 
@@ -249,14 +251,14 @@ html[data-tauri='1'] .widget-collapsed-summary {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 7px 2px;
+  padding: 6px 2px;
   border-radius: 10px;
   transition: background 0.15s ease;
-  min-height: 38px;
+  min-height: 36px;
 }
 
 .task-item-wrapper:hover .task-item {
-  background: rgba(118, 118, 128, 0.05);
+  background: var(--hover);
 }
 
 .task-item-wrapper:hover .task-actions {
@@ -276,32 +278,32 @@ html[data-tauri='1'] .widget-collapsed-summary {
 }
 
 .checkbox-circle {
-  width: 21px;
-  height: 21px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  border: 2px solid #d1d1d6;
+  border: 1.5px solid var(--check-ring);
   display: block;
   transition: all 0.15s ease;
 }
 
 .task-checkbox:hover .checkbox-circle {
-  border-color: #007aff;
-  background: rgba(0, 122, 255, 0.07);
+  border-color: var(--accent);
+  background: var(--accent-bg);
 }
 
 /* ===== Task Text ===== */
 .task-text {
   flex: 1;
-  font-size: 15px;
-  color: #1c1c1e;
+  font-size: 14px;
+  color: var(--fg);
   cursor: default;
   word-break: break-word;
 }
 
 .task-completed .task-text {
-  color: #8e8e93;
+  color: var(--fg3);
   text-decoration: line-through;
-  text-decoration-color: #c7c7cc;
+  text-decoration-color: var(--fg3);
 }
 
 /* ===== Task Edit Input ===== */
@@ -310,16 +312,16 @@ html[data-tauri='1'] .widget-collapsed-summary {
   padding: 4px 8px;
   border: none;
   border-radius: 8px;
-  background: rgba(118, 118, 128, 0.09);
-  font-size: 15px;
+  background: var(--input-bg);
+  font-size: 14px;
   font-family: inherit;
-  color: #1c1c1e;
+  color: var(--fg);
   outline: none;
 }
 
 .task-edit-input:focus {
-  background: rgba(118, 118, 128, 0.13);
-  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.25);
+  background: var(--input-focus);
+  box-shadow: 0 0 0 2px var(--accent-ring);
 }
 
 /* ===== Task Actions ===== */
@@ -337,7 +339,7 @@ html[data-tauri='1'] .widget-collapsed-summary {
   cursor: pointer;
   padding: 4px;
   border-radius: 6px;
-  color: #c7c7cc;
+  color: var(--fg3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -345,21 +347,21 @@ html[data-tauri='1'] .widget-collapsed-summary {
 }
 
 .task-action-btn:hover {
-  background: rgba(118, 118, 128, 0.08);
+  background: var(--btn-subtle);
 }
 
 .update-btn:hover,
 .update-btn-active {
-  color: #007aff !important;
-  background: rgba(0, 122, 255, 0.07) !important;
+  color: var(--accent) !important;
+  background: var(--accent-bg) !important;
 }
 
 .edit-btn:hover {
-  color: #007aff;
+  color: var(--accent);
 }
 
 .delete-btn:hover {
-  color: #ff3b30;
+  color: var(--red);
 }
 
 /* ===== Task Update Form (inline "next step") ===== */
@@ -367,18 +369,18 @@ html[data-tauri='1'] .widget-collapsed-summary {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin: 3px 0 6px 30px;
-  padding: 8px 10px;
-  background: rgba(0, 122, 255, 0.05);
+  margin: 2px 0 6px 28px;
+  padding: 7px 10px;
+  background: var(--accent-bg);
   border-radius: 10px;
-  border-left: 2px solid #007aff;
+  border-left: 2px solid var(--accent);
   animation: slideIn 0.15s ease;
 }
 
 .update-form-label {
   font-size: 11px;
   font-weight: 600;
-  color: #007aff;
+  color: var(--accent);
   white-space: nowrap;
   flex-shrink: 0;
   letter-spacing: 0.2px;
@@ -389,52 +391,52 @@ html[data-tauri='1'] .widget-collapsed-summary {
   padding: 5px 9px;
   border: none;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--input-bg);
   font-size: 13px;
   font-family: inherit;
-  color: #1c1c1e;
+  color: var(--fg);
   outline: none;
   transition: background 0.15s;
 }
 
 .task-update-input:focus {
-  background: white;
-  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+  background: var(--input-focus);
+  box-shadow: 0 0 0 2px var(--accent-ring);
 }
 
 .task-update-input::placeholder {
-  color: #c7c7cc;
+  color: var(--fg3);
 }
 
 .task-update-submit {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border: none;
-  border-radius: 8px;
-  background: #007aff;
+  border-radius: 7px;
+  background: var(--accent);
   color: white;
-  font-size: 16px;
+  font-size: 15px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: background 0.15s ease;
+  transition: opacity 0.15s ease;
 }
 
 .task-update-submit:hover:not(:disabled) {
-  background: #0066d6;
+  opacity: 0.85;
 }
 
 .task-update-submit:disabled {
-  background: rgba(118, 118, 128, 0.12);
-  color: #c7c7cc;
+  background: var(--input-bg);
+  color: var(--fg3);
   cursor: default;
 }
 
 /* ===== History View ===== */
 .history-view {
-  padding: 8px 18px 12px;
+  padding: 8px 16px 12px;
 }
 
 .history-header {
@@ -446,7 +448,7 @@ html[data-tauri='1'] .widget-collapsed-summary {
 
 .history-toggle {
   display: flex;
-  background: rgba(118, 118, 128, 0.08);
+  background: var(--input-bg);
   border-radius: 8px;
   padding: 2px;
 }
@@ -454,20 +456,20 @@ html[data-tauri='1'] .widget-collapsed-summary {
 .toggle-btn {
   background: none;
   border: none;
-  padding: 4px 13px;
+  padding: 4px 12px;
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
-  color: #8e8e93;
+  color: var(--fg2);
   cursor: pointer;
   transition: all 0.15s ease;
   font-family: inherit;
 }
 
 .toggle-btn.active {
-  background: white;
-  color: #1c1c1e;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  background: var(--toggle-active-bg);
+  color: var(--fg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
 .history-content {
@@ -485,7 +487,7 @@ html[data-tauri='1'] .widget-collapsed-summary {
 .history-date {
   font-size: 14px;
   font-weight: 600;
-  color: #1c1c1e;
+  color: var(--fg);
   padding-bottom: 4px;
 }
 
@@ -496,7 +498,7 @@ html[data-tauri='1'] .widget-collapsed-summary {
 .history-subdate {
   font-size: 12px;
   font-weight: 500;
-  color: #8e8e93;
+  color: var(--fg2);
   padding-bottom: 3px;
   padding-left: 2px;
 }
@@ -510,7 +512,7 @@ html[data-tauri='1'] .widget-collapsed-summary {
 }
 
 .history-task:hover {
-  background: rgba(118, 118, 128, 0.05);
+  background: var(--hover);
 }
 
 .history-task:hover .history-delete {
@@ -523,7 +525,7 @@ html[data-tauri='1'] .widget-collapsed-summary {
 }
 
 .history-check-icon {
-  color: #34c759;
+  color: var(--green);
   display: flex;
   align-items: center;
   flex-shrink: 0;
@@ -532,8 +534,30 @@ html[data-tauri='1'] .widget-collapsed-summary {
 .history-task-text {
   flex: 1;
   font-size: 14px;
-  color: #3c3c43;
+  color: var(--fg);
   word-break: break-word;
+}
+
+/* ===== Resize grip (bottom-right corner, Tauri only) ===== */
+.resize-grip {
+  display: none;
+}
+
+html[data-tauri='1'] .resize-grip {
+  display: block;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  cursor: nwse-resize;
+  /* Subtle 3-dot grip indicator */
+  background-image:
+    radial-gradient(circle, var(--fg3) 1.2px, transparent 1.2px);
+  background-size: 5px 5px;
+  background-position: bottom 3px right 3px;
+  background-repeat: no-repeat;
+  opacity: 0.5;
 }
 
 /* ===== Animations ===== */
