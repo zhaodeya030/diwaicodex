@@ -14,6 +14,17 @@ pub fn run() {
         .setup(|app| {
             let window = app.get_webview_window("main").unwrap();
 
+            // Clamp window size — the window-state plugin may have saved an
+            // old oversized (full-screen) size from before this fix. Reset to
+            // the default if the restored size is unreasonably large.
+            if let (Ok(size), Ok(scale)) = (window.inner_size(), window.scale_factor()) {
+                let logical_w = size.width as f64 / scale;
+                let logical_h = size.height as f64 / scale;
+                if logical_w > 600.0 || logical_h > 900.0 {
+                    let _ = window.set_size(tauri::LogicalSize::new(300_f64, 460_f64));
+                }
+            }
+
             // First launch: place window in the top-right corner
             let state_dir = app
                 .path()
