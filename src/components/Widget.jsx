@@ -23,33 +23,71 @@ export default function Widget({
     setCollapsed(next);
     localStorage.setItem('widget_collapsed', String(next));
 
-    // Resize Tauri window to match collapsed/expanded state
     try {
       const { getCurrentWindow } = await import('@tauri-apps/api/window');
       const { LogicalSize } = await import('@tauri-apps/api/dpi');
       const win = getCurrentWindow();
 
       if (next) {
-        // Collapsing — save current logical size, shrink to title bar
+        // Collapsing — save current size, shrink to header bar
         const phys = await win.innerSize();
         const scale = await win.scaleFactor();
         const logW = Math.round(phys.width / scale);
         const logH = Math.round(phys.height / scale);
         localStorage.setItem('widget_expanded_size', JSON.stringify({ w: logW, h: logH }));
-        await win.setSize(new LogicalSize(logW, 60));
+        await win.setSize(new LogicalSize(logW, 52));
       } else {
-        // Expanding — restore saved size (or default to 300×460)
+        // Expanding — restore saved size
         const saved = JSON.parse(localStorage.getItem('widget_expanded_size') || 'null');
-        await win.setSize(new LogicalSize(saved?.w ?? 300, saved?.h ?? 460));
+        await win.setSize(new LogicalSize(saved?.w ?? 300, saved?.h ?? 360));
       }
     } catch {
       // Browser mode — no window resize needed
     }
   };
 
+  // SE-corner resize grip: tries native OS drag-resize, falls back to manual
+  const handleResizeMouseDown = async (e) => {
+    if (!document.documentElement.dataset.tauri) return;
+    e.preventDefault();
+    try {
+      const { getCurrentWindow } = await import('@tauri-apps/api/window');
+      const { LogicalSize } = await import('@tauri-apps/api/dpi');
+      const win = getCurrentWindow();
+
+      // Tauri 2.1+: native OS drag-resize (smooth, tracks outside window)
+      if (typeof win.startDragResize === 'function') {
+        await win.startDragResize('SouthEast');
+        return;
+      }
+
+      // Fallback: manual tracking via setSize
+      const phys = await win.innerSize();
+      const scale = await win.scaleFactor();
+      const initW = phys.width / scale;
+      const initH = phys.height / scale;
+      const startX = e.screenX;
+      const startY = e.screenY;
+
+      const onMove = async (me) => {
+        const newW = Math.max(200, Math.round(initW + (me.screenX - startX)));
+        const newH = Math.max(52, Math.round(initH + (me.screenY - startY)));
+        await win.setSize(new LogicalSize(newW, newH));
+      };
+      const onUp = () => {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+      };
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    } catch {
+      // ignore
+    }
+  };
+
   return (
     <div className={`widget ${collapsed ? 'widget-collapsed' : ''}`}>
-      {/* Header — also the drag region for Tauri */}
+      {/* Header — drag region for moving the window */}
       <div className="widget-header" data-tauri-drag-region>
         <div className="widget-header-left">
           {!collapsed && view === 'history' && (
@@ -58,7 +96,7 @@ export default function Widget({
               onClick={() => setView('main')}
               aria-label="Back"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="15 18 9 12 15 6" />
               </svg>
             </button>
@@ -73,7 +111,7 @@ export default function Widget({
               aria-label="History"
               title="View history"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />
                 <polyline points="12 6 12 12 16 14" />
               </svg>
@@ -85,12 +123,12 @@ export default function Widget({
             aria-label={collapsed ? 'Expand' : 'Collapse'}
           >
             <svg
-              width="18"
-              height="18"
+              width="16"
+              height="16"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2"
+              strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
               style={{
@@ -125,13 +163,12 @@ export default function Widget({
         </div>
       )}
 
-      {collapsed && (
-        <div className="widget-collapsed-summary" data-tauri-drag-region>
-          {pendingTasks.length > 0
-            ? `${pendingTasks.length} task${pendingTasks.length > 1 ? 's' : ''} remaining`
-            : 'All done today!'}
-        </div>
-      )}
+      {/* SE corner resize grip — visible only in Tauri via CSS */}
+      <div
+        className="resize-grip"
+        onMouseDown={handleResizeMouseDown}
+        aria-hidden="true"
+      />
     </div>
   );
 }
