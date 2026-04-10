@@ -31,16 +31,6 @@ html[data-tauri='1'] .widget {
   border-radius: 0;
 }
 
-/* macOS titleBarStyle:"overlay" — traffic lights (⬤⬤⬤) are overlaid at
-   top-left of the window. Push header content down and right to clear them.
-   Traffic lights sit at approx x:8-66, y:12-28 (logical px). */
-html[data-platform='macos'] .widget-header {
-  padding-top: 34px;
-}
-html[data-platform='macos'] .widget-header-left {
-  margin-left: 68px;
-}
-
 /* Hide summary text in Tauri collapsed mode — only the title bar shows */
 html[data-tauri='1'] .widget-collapsed-summary {
   display: none;

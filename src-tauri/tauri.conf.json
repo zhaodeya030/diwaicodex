@@ -19,7 +19,6 @@
         "minWidth": 200,
         "minHeight": 60,
         "decorations": true,
-        "titleBarStyle": "overlay",
         "maximizable": false,
         "transparent": true,
         "alwaysOnTop": false,
