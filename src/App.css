@@ -209,6 +209,11 @@
 }
 
 /* ===== Task Item ===== */
+.task-item-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
 .task-item {
   display: flex;
   align-items: center;
@@ -219,11 +224,11 @@
   min-height: 40px;
 }
 
-.task-item:hover {
+.task-item-wrapper:hover .task-item {
   background: rgba(118, 118, 128, 0.05);
 }
 
-.task-item:hover .task-actions {
+.task-item-wrapper:hover .task-actions {
   opacity: 1;
 }
 
@@ -397,15 +402,20 @@
   border-radius: 8px;
 }
 
-.history-task:hover {
+.history-task-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.history-task-wrapper:hover .history-task {
   background: rgba(118, 118, 128, 0.05);
 }
 
-.history-task:hover .task-action-btn {
+.history-task-wrapper:hover .task-action-btn {
   opacity: 1;
 }
 
-.history-task .task-action-btn {
+.history-task-wrapper .task-action-btn {
   opacity: 0;
   transition: opacity 0.15s ease;
 }
@@ -436,8 +446,143 @@
   }
 }
 
-.task-item {
+.task-item-wrapper {
   animation: slideIn 0.2s ease;
+}
+
+/* ===== Thread Button ===== */
+.thread-btn {
+  position: relative;
+}
+
+.thread-btn-active {
+  color: #007aff !important;
+  background: rgba(0, 122, 255, 0.08) !important;
+}
+
+.thread-count-badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  min-width: 14px;
+  height: 14px;
+  border-radius: 7px;
+  background: #007aff;
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  pointer-events: none;
+}
+
+/* ===== Task Thread (inline timeline) ===== */
+.task-thread {
+  margin: 2px 0 6px 32px;
+  padding-left: 12px;
+  border-left: 2px solid rgba(0, 0, 0, 0.07);
+  animation: slideIn 0.15s ease;
+}
+
+.thread-logs {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 8px;
+}
+
+.thread-log-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 3px 0;
+}
+
+.thread-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #c7c7cc;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+.thread-log-date {
+  font-size: 11px;
+  color: #8e8e93;
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding-top: 1px;
+  min-width: 68px;
+}
+
+.thread-log-text {
+  font-size: 13px;
+  color: #3c3c43;
+  word-break: break-word;
+  flex: 1;
+  line-height: 1.4;
+}
+
+.thread-add-form {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.thread-add-input {
+  flex: 1;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(118, 118, 128, 0.08);
+  font-size: 13px;
+  font-family: inherit;
+  color: #1c1c1e;
+  outline: none;
+  transition: background 0.15s ease;
+}
+
+.thread-add-input:focus {
+  background: rgba(118, 118, 128, 0.12);
+}
+
+.thread-add-input::placeholder {
+  color: #c7c7cc;
+}
+
+.thread-add-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 8px;
+  background: #007aff;
+  color: white;
+  font-size: 18px;
+  font-weight: 300;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s ease;
+}
+
+.thread-add-btn:hover:not(:disabled) {
+  background: #0066d6;
+}
+
+.thread-add-btn:disabled {
+  background: rgba(118, 118, 128, 0.12);
+  color: #c7c7cc;
+  cursor: default;
+}
+
+/* Thread in history view — slightly less indented */
+.history-task-wrapper .task-thread {
+  margin-left: 20px;
 }
 
 /* ===== Responsive ===== */

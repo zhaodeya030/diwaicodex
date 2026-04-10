@@ -1,6 +1,6 @@
 import TaskItem from './TaskItem';
 
-export default function DoneSection({ tasks, onDelete }) {
+export default function DoneSection({ tasks, onDelete, onAddLog }) {
   return (
     <div className="section">
       <h2 className="section-title">
@@ -20,6 +20,7 @@ export default function DoneSection({ tasks, onDelete }) {
               showCheckbox={false}
               onEdit={() => {}}
               onDelete={onDelete}
+              onAddLog={onAddLog}
             />
           ))
         )}

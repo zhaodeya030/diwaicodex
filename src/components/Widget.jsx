@@ -10,6 +10,7 @@ export default function Widget({
   onComplete,
   onEdit,
   onDelete,
+  onAddLog,
   getHistory,
 }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -81,12 +82,21 @@ export default function Widget({
                 onComplete={onComplete}
                 onEdit={onEdit}
                 onDelete={onDelete}
+                onAddLog={onAddLog}
               />
               <div className="section-divider" />
-              <DoneSection tasks={doneTodayTasks} onDelete={onDelete} />
+              <DoneSection
+                tasks={doneTodayTasks}
+                onDelete={onDelete}
+                onAddLog={onAddLog}
+              />
             </>
           ) : (
-            <HistoryView getHistory={getHistory} onDelete={onDelete} />
+            <HistoryView
+              getHistory={getHistory}
+              onDelete={onDelete}
+              onAddLog={onAddLog}
+            />
           )}
         </div>
       )}

@@ -10,6 +10,7 @@ export default function App() {
     editTask,
     deleteTask,
     completeTask,
+    addLog,
     getHistory,
   } = useTodos();
 
@@ -22,6 +23,7 @@ export default function App() {
         onComplete={completeTask}
         onEdit={editTask}
         onDelete={deleteTask}
+        onAddLog={addLog}
         getHistory={getHistory}
       />
     </div>

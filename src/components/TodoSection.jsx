@@ -7,6 +7,7 @@ export default function TodoSection({
   onComplete,
   onEdit,
   onDelete,
+  onAddLog,
 }) {
   return (
     <div className="section">
@@ -23,6 +24,7 @@ export default function TodoSection({
               onComplete={onComplete}
               onEdit={onEdit}
               onDelete={onDelete}
+              onAddLog={onAddLog}
             />
           ))
         )}

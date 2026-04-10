@@ -20,13 +20,10 @@ function saveTasks(tasks) {
 function performRollover(tasks) {
   const today = getToday();
   const lastDate = localStorage.getItem(LAST_DATE_KEY);
-
   if (lastDate && lastDate !== today) {
-    // New day: completed tasks from previous days stay as history,
-    // uncompleted tasks simply carry over (no changes needed).
-    // We just update the last date.
+    // New day: uncompleted tasks carry over automatically (no changes needed).
+    // Completed tasks stay as history.
   }
-
   localStorage.setItem(LAST_DATE_KEY, today);
   return tasks;
 }
@@ -41,14 +38,13 @@ export function useTodos() {
     saveTasks(tasks);
   }, [tasks]);
 
-  // Check for day change periodically (every minute)
+  // Check for day change every minute
   useEffect(() => {
     const interval = setInterval(() => {
       const today = getToday();
       const lastDate = localStorage.getItem(LAST_DATE_KEY);
       if (lastDate !== today) {
         localStorage.setItem(LAST_DATE_KEY, today);
-        // Force re-render so "Done Today" section updates
         setTasks((prev) => [...prev]);
       }
     }, 60000);
@@ -56,7 +52,6 @@ export function useTodos() {
   }, []);
 
   const today = getToday();
-
   const pendingTasks = tasks.filter((t) => !t.completed);
   const doneTodayTasks = tasks.filter(
     (t) => t.completed && t.completedAt === today
@@ -72,6 +67,7 @@ export function useTodos() {
         completed: false,
         createdAt: getToday(),
         completedAt: null,
+        logs: [], // timeline entries: { id, text, date }
       },
     ]);
   }, []);
@@ -95,6 +91,24 @@ export function useTodos() {
     );
   }, []);
 
+  // Add a progress update/note to any task's timeline
+  const addLog = useCallback((taskId, text) => {
+    if (!text.trim()) return;
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === taskId
+          ? {
+              ...t,
+              logs: [
+                ...(t.logs || []),
+                { id: generateId(), text: text.trim(), date: getToday() },
+              ],
+            }
+          : t
+      )
+    );
+  }, []);
+
   // Group completed tasks by date for history
   const getHistory = useCallback(() => {
     const completed = tasks
@@ -103,9 +117,7 @@ export function useTodos() {
 
     const byDate = {};
     for (const task of completed) {
-      if (!byDate[task.completedAt]) {
-        byDate[task.completedAt] = [];
-      }
+      if (!byDate[task.completedAt]) byDate[task.completedAt] = [];
       byDate[task.completedAt].push(task);
     }
     return byDate;
@@ -118,6 +130,7 @@ export function useTodos() {
     editTask,
     deleteTask,
     completeTask,
+    addLog,
     getHistory,
   };
 }
