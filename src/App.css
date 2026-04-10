@@ -1,0 +1,559 @@
+/* ===== App Shell ===== */
+.app {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  height: 100vh;
+  background: transparent;
+  padding: 0; /* widget fills the Tauri window */
+}
+
+/* ===== Widget ===== */
+.widget {
+  width: 100%;
+  height: 100%;
+  /* Browser fallback: frosted glass via CSS */
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* When running inside Tauri: let native vibrancy show through.
+   border-radius: 0 because the OS window frame handles corner rounding. */
+html[data-tauri='1'] .widget {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-radius: 0;
+}
+
+/* macOS titleBarStyle:"overlay" — traffic lights (⬤⬤⬤) are overlaid at
+   top-left of the window. Push header content down and right to clear them.
+   Traffic lights sit at approx x:8-66, y:12-28 (logical px). */
+html[data-platform='macos'] .widget-header {
+  padding-top: 34px;
+}
+html[data-platform='macos'] .widget-header-left {
+  margin-left: 68px;
+}
+
+/* Hide summary text in Tauri collapsed mode — only the title bar shows */
+html[data-tauri='1'] .widget-collapsed-summary {
+  display: none;
+}
+
+/* When running in browser (not Tauri), show as a centered card */
+@media (min-width: 420px) {
+  .app {
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 16px;
+    background: #f2f2f7;
+  }
+  .widget {
+    width: 380px;
+    height: auto;
+    max-height: 85vh;
+    border-radius: 20px;
+    box-shadow:
+      0 2px 24px rgba(0, 0, 0, 0.08),
+      0 0 0 0.5px rgba(0, 0, 0, 0.06);
+  }
+}
+
+/* ===== Widget Header ===== */
+.widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 14px;
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.07);
+  flex-shrink: 0;
+}
+
+.widget-collapsed .widget-header {
+  border-bottom: none;
+}
+
+.widget-header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.widget-header-right {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.widget-title {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: #1c1c1e;
+}
+
+.widget-collapse-btn,
+.widget-history-btn,
+.widget-back-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #8e8e93;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.widget-collapse-btn:hover,
+.widget-history-btn:hover,
+.widget-back-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1c1c1e;
+}
+
+.widget-collapsed-summary {
+  padding: 0 18px 14px;
+  font-size: 13px;
+  color: #8e8e93;
+}
+
+/* ===== Widget Body ===== */
+.widget-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0 16px;
+}
+
+.widget-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.widget-body::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.10);
+  border-radius: 2px;
+}
+
+/* ===== Sections ===== */
+.section {
+  padding: 8px 18px 10px;
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #8e8e93;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.done-count {
+  background: #34c759;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+}
+
+.section-divider {
+  height: 0.5px;
+  background: rgba(0, 0, 0, 0.07);
+  margin: 4px 18px;
+}
+
+.empty-hint {
+  font-size: 13px;
+  color: #c7c7cc;
+  padding: 10px 0;
+  text-align: center;
+}
+
+/* ===== Add Task ===== */
+.add-task {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.add-task-input {
+  flex: 1;
+  padding: 9px 13px;
+  border: none;
+  border-radius: 11px;
+  background: rgba(118, 118, 128, 0.09);
+  font-size: 15px;
+  font-family: inherit;
+  color: #1c1c1e;
+  outline: none;
+  transition: background 0.15s ease;
+}
+
+.add-task-input:focus {
+  background: rgba(118, 118, 128, 0.13);
+}
+
+.add-task-input::placeholder {
+  color: #c7c7cc;
+}
+
+.add-task-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 11px;
+  background: #007aff;
+  color: white;
+  font-size: 20px;
+  font-weight: 300;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.add-task-btn:hover:not(:disabled) {
+  background: #0066d6;
+}
+
+.add-task-btn:disabled {
+  background: rgba(118, 118, 128, 0.12);
+  color: #c7c7cc;
+  cursor: default;
+}
+
+/* ===== Task List ===== */
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* ===== Task Item ===== */
+.task-item-wrapper {
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.18s ease;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 2px;
+  border-radius: 10px;
+  transition: background 0.15s ease;
+  min-height: 38px;
+}
+
+.task-item-wrapper:hover .task-item {
+  background: rgba(118, 118, 128, 0.05);
+}
+
+.task-item-wrapper:hover .task-actions {
+  opacity: 1;
+}
+
+/* ===== Checkbox ===== */
+.task-checkbox {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.checkbox-circle {
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  border: 2px solid #d1d1d6;
+  display: block;
+  transition: all 0.15s ease;
+}
+
+.task-checkbox:hover .checkbox-circle {
+  border-color: #007aff;
+  background: rgba(0, 122, 255, 0.07);
+}
+
+/* ===== Task Text ===== */
+.task-text {
+  flex: 1;
+  font-size: 15px;
+  color: #1c1c1e;
+  cursor: default;
+  word-break: break-word;
+}
+
+.task-completed .task-text {
+  color: #8e8e93;
+  text-decoration: line-through;
+  text-decoration-color: #c7c7cc;
+}
+
+/* ===== Task Edit Input ===== */
+.task-edit-input {
+  flex: 1;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(118, 118, 128, 0.09);
+  font-size: 15px;
+  font-family: inherit;
+  color: #1c1c1e;
+  outline: none;
+}
+
+.task-edit-input:focus {
+  background: rgba(118, 118, 128, 0.13);
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.25);
+}
+
+/* ===== Task Actions ===== */
+.task-actions {
+  display: flex;
+  gap: 1px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  flex-shrink: 0;
+}
+
+.task-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  color: #c7c7cc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.task-action-btn:hover {
+  background: rgba(118, 118, 128, 0.08);
+}
+
+.update-btn:hover,
+.update-btn-active {
+  color: #007aff !important;
+  background: rgba(0, 122, 255, 0.07) !important;
+}
+
+.edit-btn:hover {
+  color: #007aff;
+}
+
+.delete-btn:hover {
+  color: #ff3b30;
+}
+
+/* ===== Task Update Form (inline "next step") ===== */
+.task-update-form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 3px 0 6px 30px;
+  padding: 8px 10px;
+  background: rgba(0, 122, 255, 0.05);
+  border-radius: 10px;
+  border-left: 2px solid #007aff;
+  animation: slideIn 0.15s ease;
+}
+
+.update-form-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #007aff;
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.2px;
+}
+
+.task-update-input {
+  flex: 1;
+  padding: 5px 9px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-family: inherit;
+  color: #1c1c1e;
+  outline: none;
+  transition: background 0.15s;
+}
+
+.task-update-input:focus {
+  background: white;
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+}
+
+.task-update-input::placeholder {
+  color: #c7c7cc;
+}
+
+.task-update-submit {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 8px;
+  background: #007aff;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s ease;
+}
+
+.task-update-submit:hover:not(:disabled) {
+  background: #0066d6;
+}
+
+.task-update-submit:disabled {
+  background: rgba(118, 118, 128, 0.12);
+  color: #c7c7cc;
+  cursor: default;
+}
+
+/* ===== History View ===== */
+.history-view {
+  padding: 8px 18px 12px;
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.history-toggle {
+  display: flex;
+  background: rgba(118, 118, 128, 0.08);
+  border-radius: 8px;
+  padding: 2px;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  padding: 4px 13px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #8e8e93;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.toggle-btn.active {
+  background: white;
+  color: #1c1c1e;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.history-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.history-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.history-date {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1c1c1e;
+  padding-bottom: 4px;
+}
+
+.history-subgroup {
+  margin-top: 6px;
+}
+
+.history-subdate {
+  font-size: 12px;
+  font-weight: 500;
+  color: #8e8e93;
+  padding-bottom: 3px;
+  padding-left: 2px;
+}
+
+.history-task {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 4px;
+  border-radius: 8px;
+}
+
+.history-task:hover {
+  background: rgba(118, 118, 128, 0.05);
+}
+
+.history-task:hover .history-delete {
+  opacity: 1;
+}
+
+.history-delete {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.history-check-icon {
+  color: #34c759;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.history-task-text {
+  flex: 1;
+  font-size: 14px;
+  color: #3c3c43;
+  word-break: break-word;
+}
+
+/* ===== Animations ===== */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
