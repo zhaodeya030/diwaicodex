@@ -3,7 +3,7 @@
   display: flex;
   justify-content: flex-end;
   align-items: flex-start;
-  min-height: 100vh;
+  height: 100vh;
   background: transparent;
   padding: 0; /* widget fills the Tauri window */
 }
@@ -11,7 +11,8 @@
 /* ===== Widget ===== */
 .widget {
   width: 100%;
-  min-height: 100vh;
+  height: 100%;
+  /* Browser fallback: frosted glass via CSS */
   background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(40px) saturate(180%);
   -webkit-backdrop-filter: blur(40px) saturate(180%);
@@ -21,18 +22,30 @@
   overflow: hidden;
 }
 
-/* When running in browser (not Tauri), show as a widget card */
+/* When running inside Tauri: let native vibrancy show through */
+html[data-tauri='1'] .widget {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-radius: 12px;
+}
+
+/* Hide summary text in Tauri collapsed mode — only the title bar shows */
+html[data-tauri='1'] .widget-collapsed-summary {
+  display: none;
+}
+
+/* When running in browser (not Tauri), show as a centered card */
 @media (min-width: 420px) {
   .app {
     justify-content: center;
     align-items: flex-start;
     padding: 40px 16px;
     background: #f2f2f7;
-    min-height: 100vh;
   }
   .widget {
     width: 380px;
-    min-height: auto;
+    height: auto;
     max-height: 85vh;
     border-radius: 20px;
     box-shadow:

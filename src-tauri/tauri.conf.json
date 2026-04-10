@@ -14,16 +14,15 @@
       {
         "label": "main",
         "title": "DailyDo",
-        "width": 380,
-        "height": 700,
-        "minWidth": 320,
-        "minHeight": 300,
+        "width": 300,
+        "height": 460,
+        "minWidth": 200,
+        "minHeight": 46,
         "decorations": false,
         "transparent": true,
         "alwaysOnTop": true,
-        "skipTaskbar": true,
-        "resizable": true,
-        "shadow": false
+        "skipTaskbar": false,
+        "resizable": true
       }
     ],
     "security": {

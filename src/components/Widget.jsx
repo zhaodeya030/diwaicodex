@@ -18,10 +18,33 @@ export default function Widget({
   );
   const [view, setView] = useState('main'); // 'main' | 'history'
 
-  const toggleCollapsed = () => {
+  const toggleCollapsed = async () => {
     const next = !collapsed;
     setCollapsed(next);
     localStorage.setItem('widget_collapsed', String(next));
+
+    // Resize Tauri window to match collapsed/expanded state
+    try {
+      const { getCurrentWindow } = await import('@tauri-apps/api/window');
+      const { LogicalSize } = await import('@tauri-apps/api/dpi');
+      const win = getCurrentWindow();
+
+      if (next) {
+        // Collapsing — save current logical size, shrink to title bar
+        const phys = await win.innerSize();
+        const scale = await win.scaleFactor();
+        const logW = Math.round(phys.width / scale);
+        const logH = Math.round(phys.height / scale);
+        localStorage.setItem('widget_expanded_size', JSON.stringify({ w: logW, h: logH }));
+        await win.setSize(new LogicalSize(logW, 60));
+      } else {
+        // Expanding — restore saved size (or default to 300×460)
+        const saved = JSON.parse(localStorage.getItem('widget_expanded_size') || 'null');
+        await win.setSize(new LogicalSize(saved?.w ?? 300, saved?.h ?? 460));
+      }
+    } catch {
+      // Browser mode — no window resize needed
+    }
   };
 
   return (

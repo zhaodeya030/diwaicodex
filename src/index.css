@@ -19,6 +19,10 @@ body {
   overflow: hidden; /* no scrollbar on the outer window */
 }
 
+#root {
+  height: 100%;
+}
+
 /* Tauri drag regions */
 [data-tauri-drag-region] {
   -webkit-user-select: none;
