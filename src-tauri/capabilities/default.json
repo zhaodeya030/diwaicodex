@@ -1,0 +1,9 @@
+{
+  "identifier": "default",
+  "description": "Default permissions for DailyDo main window",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "window-state:default"
+  ]
+}

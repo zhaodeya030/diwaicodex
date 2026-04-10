@@ -1,19 +1,17 @@
 import { useState } from 'react';
-import TaskThread from './TaskThread';
 
 export default function TaskItem({
   task,
   onComplete,
   onEdit,
   onDelete,
-  onAddLog,
+  onAddUpdate,
   showCheckbox = true,
 }) {
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(task.text);
-  const [threadOpen, setThreadOpen] = useState(false);
-
-  const logCount = (task.logs || []).length;
+  const [updating, setUpdating] = useState(false);
+  const [updateText, setUpdateText] = useState('');
 
   const handleSave = () => {
     if (editText.trim() && editText.trim() !== task.text) {
@@ -24,11 +22,26 @@ export default function TaskItem({
     setEditing(false);
   };
 
-  const handleKeyDown = (e) => {
+  const handleEditKeyDown = (e) => {
     if (e.key === 'Enter') handleSave();
     if (e.key === 'Escape') {
       setEditText(task.text);
       setEditing(false);
+    }
+  };
+
+  const handleUpdateSubmit = (e) => {
+    e.preventDefault();
+    if (!updateText.trim()) return;
+    onAddUpdate(task.id, updateText.trim());
+    setUpdateText('');
+    setUpdating(false);
+  };
+
+  const handleUpdateKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      setUpdateText('');
+      setUpdating(false);
     }
   };
 
@@ -52,7 +65,7 @@ export default function TaskItem({
             value={editText}
             onChange={(e) => setEditText(e.target.value)}
             onBlur={handleSave}
-            onKeyDown={handleKeyDown}
+            onKeyDown={handleEditKeyDown}
             autoFocus
             maxLength={200}
           />
@@ -69,24 +82,20 @@ export default function TaskItem({
         )}
 
         <div className="task-actions">
-          {onAddLog && !editing && (
+          {/* Update button: advance this task to its next step */}
+          {!task.completed && !editing && onAddUpdate && (
             <button
-              className={`task-action-btn thread-btn ${threadOpen ? 'thread-btn-active' : ''}`}
-              onClick={() => setThreadOpen(!threadOpen)}
-              aria-label="View updates"
-              title="View / add updates"
+              className={`task-action-btn update-btn ${updating ? 'update-btn-active' : ''}`}
+              onClick={() => {
+                setUpdating(!updating);
+                setUpdateText('');
+              }}
+              aria-label="Advance to next step"
+              title="Record next step (archives current)"
             >
-              {logCount > 0 && (
-                <span className="thread-count-badge">{logCount}</span>
-              )}
-              {/* Timeline icon */}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="8" y1="6" x2="21" y2="6" />
-                <line x1="8" y1="12" x2="21" y2="12" />
-                <line x1="8" y1="18" x2="21" y2="18" />
-                <circle cx="3" cy="6" r="1.5" fill="currentColor" stroke="none" />
-                <circle cx="3" cy="12" r="1.5" fill="currentColor" stroke="none" />
-                <circle cx="3" cy="18" r="1.5" fill="currentColor" stroke="none" />
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
               </svg>
             </button>
           )}
@@ -114,8 +123,32 @@ export default function TaskItem({
         </div>
       </div>
 
-      {threadOpen && onAddLog && (
-        <TaskThread task={task} onAddLog={onAddLog} />
+      {/* Inline "next step" form — appears below the task row */}
+      {updating && (
+        <form className="task-update-form" onSubmit={handleUpdateSubmit}>
+          <span className="update-form-label">Next step</span>
+          <input
+            className="task-update-input"
+            type="text"
+            value={updateText}
+            onChange={(e) => setUpdateText(e.target.value)}
+            onKeyDown={handleUpdateKeyDown}
+            placeholder="What comes next?"
+            autoFocus
+            maxLength={200}
+          />
+          <button
+            type="submit"
+            className="task-update-submit"
+            disabled={!updateText.trim()}
+            title="Submit — current task moves to Done Today"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </button>
+        </form>
       )}
     </div>
   );

@@ -1,29 +1,44 @@
-/* ===== App Container ===== */
+/* ===== App Shell ===== */
 .app {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: flex-start;
   min-height: 100vh;
-  padding: 40px 16px;
+  background: transparent;
+  padding: 0; /* widget fills the Tauri window */
 }
 
 /* ===== Widget ===== */
 .widget {
-  width: 360px;
-  max-width: 100%;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 20px;
-  box-shadow:
-    0 2px 20px rgba(0, 0, 0, 0.06),
-    0 0 0 0.5px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  min-height: 100vh;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
-  transition: all 0.3s ease;
 }
 
-.widget-collapsed {
-  width: 360px;
+/* When running in browser (not Tauri), show as a widget card */
+@media (min-width: 420px) {
+  .app {
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 16px;
+    background: #f2f2f7;
+    min-height: 100vh;
+  }
+  .widget {
+    width: 380px;
+    min-height: auto;
+    max-height: 85vh;
+    border-radius: 20px;
+    box-shadow:
+      0 2px 24px rgba(0, 0, 0, 0.08),
+      0 0 0 0.5px rgba(0, 0, 0, 0.06);
+  }
 }
 
 /* ===== Widget Header ===== */
@@ -31,8 +46,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 0.5px solid rgba(0, 0, 0, 0.08);
+  padding: 16px 18px 14px;
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.07);
+  flex-shrink: 0;
 }
 
 .widget-collapsed .widget-header {
@@ -48,11 +64,11 @@
 .widget-header-right {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 
 .widget-title {
-  font-size: 20px;
+  font-size: 19px;
   font-weight: 700;
   letter-spacing: -0.4px;
   color: #1c1c1e;
@@ -76,21 +92,21 @@
 .widget-collapse-btn:hover,
 .widget-history-btn:hover,
 .widget-back-btn:hover {
-  background: rgba(0, 0, 0, 0.04);
+  background: rgba(0, 0, 0, 0.05);
   color: #1c1c1e;
 }
 
 .widget-collapsed-summary {
-  padding: 0 20px 16px;
+  padding: 0 18px 14px;
   font-size: 13px;
   color: #8e8e93;
 }
 
 /* ===== Widget Body ===== */
 .widget-body {
-  padding: 4px 0 8px;
-  max-height: 70vh;
+  flex: 1;
   overflow-y: auto;
+  padding: 4px 0 16px;
 }
 
 .widget-body::-webkit-scrollbar {
@@ -98,20 +114,20 @@
 }
 
 .widget-body::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.10);
   border-radius: 2px;
 }
 
 /* ===== Sections ===== */
 .section {
-  padding: 8px 20px 12px;
+  padding: 8px 18px 10px;
 }
 
 .section-title {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   color: #8e8e93;
   margin-bottom: 8px;
   display: flex;
@@ -135,14 +151,14 @@
 
 .section-divider {
   height: 0.5px;
-  background: rgba(0, 0, 0, 0.08);
-  margin: 4px 20px;
+  background: rgba(0, 0, 0, 0.07);
+  margin: 4px 18px;
 }
 
 .empty-hint {
-  font-size: 14px;
+  font-size: 13px;
   color: #c7c7cc;
-  padding: 12px 0;
+  padding: 10px 0;
   text-align: center;
 }
 
@@ -155,10 +171,10 @@
 
 .add-task-input {
   flex: 1;
-  padding: 10px 14px;
+  padding: 9px 13px;
   border: none;
-  border-radius: 12px;
-  background: rgba(118, 118, 128, 0.08);
+  border-radius: 11px;
+  background: rgba(118, 118, 128, 0.09);
   font-size: 15px;
   font-family: inherit;
   color: #1c1c1e;
@@ -167,7 +183,7 @@
 }
 
 .add-task-input:focus {
-  background: rgba(118, 118, 128, 0.12);
+  background: rgba(118, 118, 128, 0.13);
 }
 
 .add-task-input::placeholder {
@@ -175,10 +191,10 @@
 }
 
 .add-task-btn {
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border: none;
-  border-radius: 12px;
+  border-radius: 11px;
   background: #007aff;
   color: white;
   font-size: 20px;
@@ -205,23 +221,24 @@
 .task-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 /* ===== Task Item ===== */
 .task-item-wrapper {
   display: flex;
   flex-direction: column;
+  animation: slideIn 0.18s ease;
 }
 
 .task-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 4px;
+  padding: 7px 2px;
   border-radius: 10px;
   transition: background 0.15s ease;
-  min-height: 40px;
+  min-height: 38px;
 }
 
 .task-item-wrapper:hover .task-item {
@@ -245,9 +262,9 @@
 }
 
 .checkbox-circle {
-  width: 22px;
-  height: 22px;
-  border-radius: 11px;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
   border: 2px solid #d1d1d6;
   display: block;
   transition: all 0.15s ease;
@@ -255,7 +272,7 @@
 
 .task-checkbox:hover .checkbox-circle {
   border-color: #007aff;
-  background: rgba(0, 122, 255, 0.08);
+  background: rgba(0, 122, 255, 0.07);
 }
 
 /* ===== Task Text ===== */
@@ -279,7 +296,7 @@
   padding: 4px 8px;
   border: none;
   border-radius: 8px;
-  background: rgba(118, 118, 128, 0.08);
+  background: rgba(118, 118, 128, 0.09);
   font-size: 15px;
   font-family: inherit;
   color: #1c1c1e;
@@ -287,14 +304,14 @@
 }
 
 .task-edit-input:focus {
-  background: rgba(118, 118, 128, 0.12);
-  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.3);
+  background: rgba(118, 118, 128, 0.13);
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.25);
 }
 
 /* ===== Task Actions ===== */
 .task-actions {
   display: flex;
-  gap: 2px;
+  gap: 1px;
   opacity: 0;
   transition: opacity 0.15s ease;
   flex-shrink: 0;
@@ -317,6 +334,12 @@
   background: rgba(118, 118, 128, 0.08);
 }
 
+.update-btn:hover,
+.update-btn-active {
+  color: #007aff !important;
+  background: rgba(0, 122, 255, 0.07) !important;
+}
+
 .edit-btn:hover {
   color: #007aff;
 }
@@ -325,9 +348,79 @@
   color: #ff3b30;
 }
 
+/* ===== Task Update Form (inline "next step") ===== */
+.task-update-form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 3px 0 6px 30px;
+  padding: 8px 10px;
+  background: rgba(0, 122, 255, 0.05);
+  border-radius: 10px;
+  border-left: 2px solid #007aff;
+  animation: slideIn 0.15s ease;
+}
+
+.update-form-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #007aff;
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.2px;
+}
+
+.task-update-input {
+  flex: 1;
+  padding: 5px 9px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-family: inherit;
+  color: #1c1c1e;
+  outline: none;
+  transition: background 0.15s;
+}
+
+.task-update-input:focus {
+  background: white;
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+}
+
+.task-update-input::placeholder {
+  color: #c7c7cc;
+}
+
+.task-update-submit {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 8px;
+  background: #007aff;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s ease;
+}
+
+.task-update-submit:hover:not(:disabled) {
+  background: #0066d6;
+}
+
+.task-update-submit:disabled {
+  background: rgba(118, 118, 128, 0.12);
+  color: #c7c7cc;
+  cursor: default;
+}
+
 /* ===== History View ===== */
 .history-view {
-  padding: 8px 20px 12px;
+  padding: 8px 18px 12px;
 }
 
 .history-header {
@@ -347,7 +440,7 @@
 .toggle-btn {
   background: none;
   border: none;
-  padding: 4px 14px;
+  padding: 4px 13px;
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
@@ -363,7 +456,6 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-/* ===== History Content ===== */
 .history-content {
   display: flex;
   flex-direction: column;
@@ -384,38 +476,34 @@
 }
 
 .history-subgroup {
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 .history-subdate {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   color: #8e8e93;
-  padding-bottom: 4px;
+  padding-bottom: 3px;
+  padding-left: 2px;
 }
 
 .history-task {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 4px;
+  padding: 5px 4px;
   border-radius: 8px;
 }
 
-.history-task-wrapper {
-  display: flex;
-  flex-direction: column;
-}
-
-.history-task-wrapper:hover .history-task {
+.history-task:hover {
   background: rgba(118, 118, 128, 0.05);
 }
 
-.history-task-wrapper:hover .task-action-btn {
+.history-task:hover .history-delete {
   opacity: 1;
 }
 
-.history-task-wrapper .task-action-btn {
+.history-delete {
   opacity: 0;
   transition: opacity 0.15s ease;
 }
@@ -443,157 +531,5 @@
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-.task-item-wrapper {
-  animation: slideIn 0.2s ease;
-}
-
-/* ===== Thread Button ===== */
-.thread-btn {
-  position: relative;
-}
-
-.thread-btn-active {
-  color: #007aff !important;
-  background: rgba(0, 122, 255, 0.08) !important;
-}
-
-.thread-count-badge {
-  position: absolute;
-  top: -3px;
-  right: -3px;
-  min-width: 14px;
-  height: 14px;
-  border-radius: 7px;
-  background: #007aff;
-  color: white;
-  font-size: 9px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 3px;
-  pointer-events: none;
-}
-
-/* ===== Task Thread (inline timeline) ===== */
-.task-thread {
-  margin: 2px 0 6px 32px;
-  padding-left: 12px;
-  border-left: 2px solid rgba(0, 0, 0, 0.07);
-  animation: slideIn 0.15s ease;
-}
-
-.thread-logs {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin-bottom: 8px;
-}
-
-.thread-log-entry {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 3px 0;
-}
-
-.thread-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #c7c7cc;
-  flex-shrink: 0;
-  margin-top: 6px;
-}
-
-.thread-log-date {
-  font-size: 11px;
-  color: #8e8e93;
-  white-space: nowrap;
-  flex-shrink: 0;
-  padding-top: 1px;
-  min-width: 68px;
-}
-
-.thread-log-text {
-  font-size: 13px;
-  color: #3c3c43;
-  word-break: break-word;
-  flex: 1;
-  line-height: 1.4;
-}
-
-.thread-add-form {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-.thread-add-input {
-  flex: 1;
-  padding: 6px 10px;
-  border: none;
-  border-radius: 8px;
-  background: rgba(118, 118, 128, 0.08);
-  font-size: 13px;
-  font-family: inherit;
-  color: #1c1c1e;
-  outline: none;
-  transition: background 0.15s ease;
-}
-
-.thread-add-input:focus {
-  background: rgba(118, 118, 128, 0.12);
-}
-
-.thread-add-input::placeholder {
-  color: #c7c7cc;
-}
-
-.thread-add-btn {
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: 8px;
-  background: #007aff;
-  color: white;
-  font-size: 18px;
-  font-weight: 300;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: background 0.15s ease;
-}
-
-.thread-add-btn:hover:not(:disabled) {
-  background: #0066d6;
-}
-
-.thread-add-btn:disabled {
-  background: rgba(118, 118, 128, 0.12);
-  color: #c7c7cc;
-  cursor: default;
-}
-
-/* Thread in history view — slightly less indented */
-.history-task-wrapper .task-thread {
-  margin-left: 20px;
-}
-
-/* ===== Responsive ===== */
-@media (max-width: 400px) {
-  .app {
-    padding: 0;
-  }
-
-  .widget {
-    width: 100%;
-    border-radius: 0;
-    min-height: 100vh;
   }
 }

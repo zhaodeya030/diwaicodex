@@ -10,15 +10,24 @@ export default function Widget({
   onComplete,
   onEdit,
   onDelete,
-  onAddLog,
+  onAddUpdate,
   getHistory,
 }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(
+    () => localStorage.getItem('widget_collapsed') === 'true'
+  );
   const [view, setView] = useState('main'); // 'main' | 'history'
+
+  const toggleCollapsed = () => {
+    const next = !collapsed;
+    setCollapsed(next);
+    localStorage.setItem('widget_collapsed', String(next));
+  };
 
   return (
     <div className={`widget ${collapsed ? 'widget-collapsed' : ''}`}>
-      <div className="widget-header">
+      {/* Header — also the drag region for Tauri */}
+      <div className="widget-header" data-tauri-drag-region>
         <div className="widget-header-left">
           {!collapsed && view === 'history' && (
             <button
@@ -31,7 +40,7 @@ export default function Widget({
               </svg>
             </button>
           )}
-          <h1 className="widget-title">DailyDo</h1>
+          <h1 className="widget-title" data-tauri-drag-region>DailyDo</h1>
         </div>
         <div className="widget-header-right">
           {!collapsed && view === 'main' && (
@@ -49,7 +58,7 @@ export default function Widget({
           )}
           <button
             className="widget-collapse-btn"
-            onClick={() => setCollapsed(!collapsed)}
+            onClick={toggleCollapsed}
             aria-label={collapsed ? 'Expand' : 'Collapse'}
           >
             <svg
@@ -82,30 +91,22 @@ export default function Widget({
                 onComplete={onComplete}
                 onEdit={onEdit}
                 onDelete={onDelete}
-                onAddLog={onAddLog}
+                onAddUpdate={onAddUpdate}
               />
               <div className="section-divider" />
-              <DoneSection
-                tasks={doneTodayTasks}
-                onDelete={onDelete}
-                onAddLog={onAddLog}
-              />
+              <DoneSection tasks={doneTodayTasks} onDelete={onDelete} />
             </>
           ) : (
-            <HistoryView
-              getHistory={getHistory}
-              onDelete={onDelete}
-              onAddLog={onAddLog}
-            />
+            <HistoryView getHistory={getHistory} onDelete={onDelete} />
           )}
         </div>
       )}
 
       {collapsed && (
-        <div className="widget-collapsed-summary">
+        <div className="widget-collapsed-summary" data-tauri-drag-region>
           {pendingTasks.length > 0
             ? `${pendingTasks.length} task${pendingTasks.length > 1 ? 's' : ''} remaining`
-            : 'All done!'}
+            : 'All done today!'}
         </div>
       )}
     </div>

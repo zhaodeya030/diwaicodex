@@ -19,26 +19,18 @@ function saveTasks(tasks) {
 
 function performRollover(tasks) {
   const today = getToday();
-  const lastDate = localStorage.getItem(LAST_DATE_KEY);
-  if (lastDate && lastDate !== today) {
-    // New day: uncompleted tasks carry over automatically (no changes needed).
-    // Completed tasks stay as history.
-  }
   localStorage.setItem(LAST_DATE_KEY, today);
   return tasks;
 }
 
 export function useTodos() {
-  const [tasks, setTasks] = useState(() => {
-    const loaded = loadTasks();
-    return performRollover(loaded);
-  });
+  const [tasks, setTasks] = useState(() => performRollover(loadTasks()));
 
   useEffect(() => {
     saveTasks(tasks);
   }, [tasks]);
 
-  // Check for day change every minute
+  // Refresh "Done Today" if the day changes while app is open
   useEffect(() => {
     const interval = setInterval(() => {
       const today = getToday();
@@ -52,11 +44,14 @@ export function useTodos() {
   }, []);
 
   const today = getToday();
+
   const pendingTasks = tasks.filter((t) => !t.completed);
+
   const doneTodayTasks = tasks.filter(
     (t) => t.completed && t.completedAt === today
   );
 
+  // Add a brand new task
   const addTask = useCallback((text) => {
     if (!text.trim()) return;
     setTasks((prev) => [
@@ -67,7 +62,6 @@ export function useTodos() {
         completed: false,
         createdAt: getToday(),
         completedAt: null,
-        logs: [], // timeline entries: { id, text, date }
       },
     ]);
   }, []);
@@ -83,6 +77,7 @@ export function useTodos() {
     setTasks((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
+  // Check off a task → moves to Done Today
   const completeTask = useCallback((id) => {
     setTasks((prev) =>
       prev.map((t) =>
@@ -91,25 +86,33 @@ export function useTodos() {
     );
   }, []);
 
-  // Add a progress update/note to any task's timeline
-  const addLog = useCallback((taskId, text) => {
-    if (!text.trim()) return;
-    setTasks((prev) =>
-      prev.map((t) =>
-        t.id === taskId
-          ? {
-              ...t,
-              logs: [
-                ...(t.logs || []),
-                { id: generateId(), text: text.trim(), date: getToday() },
-              ],
-            }
-          : t
-      )
-    );
+  // Advance a task to the next step:
+  //   1. Archive current task text as a new "completed" entry (shows in Done Today)
+  //   2. Update the original task with the new text (stays in To Do)
+  const addUpdate = useCallback((taskId, newText) => {
+    if (!newText.trim()) return;
+    const today = getToday();
+    setTasks((prev) => {
+      const task = prev.find((t) => t.id === taskId);
+      if (!task) return prev;
+
+      const archivedEntry = {
+        id: generateId(),
+        text: task.text,
+        completed: true,
+        createdAt: task.createdAt,
+        completedAt: today,
+      };
+
+      const updated = prev.map((t) =>
+        t.id === taskId ? { ...t, text: newText.trim() } : t
+      );
+
+      return [...updated, archivedEntry];
+    });
   }, []);
 
-  // Group completed tasks by date for history
+  // Group completed tasks by completedAt date for History
   const getHistory = useCallback(() => {
     const completed = tasks
       .filter((t) => t.completed && t.completedAt)
@@ -130,7 +133,7 @@ export function useTodos() {
     editTask,
     deleteTask,
     completeTask,
-    addLog,
+    addUpdate,
     getHistory,
   };
 }

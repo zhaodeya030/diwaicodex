@@ -6,12 +6,22 @@
   padding: 0;
 }
 
+/* Transparent so Tauri's native vibrancy shows through */
+html,
 body {
+  background: transparent;
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI',
     Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #f2f2f7;
   color: #1c1c1e;
   line-height: 1.5;
+  overflow: hidden; /* no scrollbar on the outer window */
+}
+
+/* Tauri drag regions */
+[data-tauri-drag-region] {
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: default;
 }
