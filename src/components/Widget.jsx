@@ -18,18 +18,18 @@ export default function Widget({
   );
   const [view, setView] = useState('main'); // 'main' | 'history'
 
+  // LogicalSize lives in @tauri-apps/api/window (not /dpi) in Tauri 2.0.x
   const toggleCollapsed = async () => {
     const next = !collapsed;
     setCollapsed(next);
     localStorage.setItem('widget_collapsed', String(next));
 
     try {
-      const { getCurrentWindow } = await import('@tauri-apps/api/window');
-      const { LogicalSize } = await import('@tauri-apps/api/dpi');
+      const { getCurrentWindow, LogicalSize } = await import('@tauri-apps/api/window');
       const win = getCurrentWindow();
 
       if (next) {
-        // Collapsing — save current size, shrink to header bar
+        // Collapsing — save current size, shrink to header bar only
         const phys = await win.innerSize();
         const scale = await win.scaleFactor();
         const logW = Math.round(phys.width / scale);
@@ -46,22 +46,30 @@ export default function Widget({
     }
   };
 
-  // SE-corner resize grip: tries native OS drag-resize, falls back to manual
+  const handleClose = async () => {
+    try {
+      const { getCurrentWindow } = await import('@tauri-apps/api/window');
+      await getCurrentWindow().close();
+    } catch {
+      // ignore in browser mode
+    }
+  };
+
+  // SE-corner resize grip
   const handleResizeMouseDown = async (e) => {
     if (!document.documentElement.dataset.tauri) return;
     e.preventDefault();
     try {
-      const { getCurrentWindow } = await import('@tauri-apps/api/window');
-      const { LogicalSize } = await import('@tauri-apps/api/dpi');
+      const { getCurrentWindow, LogicalSize } = await import('@tauri-apps/api/window');
       const win = getCurrentWindow();
 
-      // Tauri 2.1+: native OS drag-resize (smooth, tracks outside window)
+      // Tauri 2.1+: native OS drag-resize
       if (typeof win.startDragResize === 'function') {
         await win.startDragResize('SouthEast');
         return;
       }
 
-      // Fallback: manual tracking via setSize
+      // Fallback: manual resize via setSize
       const phys = await win.innerSize();
       const scale = await win.scaleFactor();
       const initW = phys.width / scale;
@@ -123,20 +131,23 @@ export default function Widget({
             aria-label={collapsed ? 'Expand' : 'Collapse'}
           >
             <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              style={{
-                transform: collapsed ? 'rotate(180deg)' : 'none',
-                transition: 'transform 0.2s ease',
-              }}
+              width="16" height="16" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" strokeWidth="2.5"
+              strokeLinecap="round" strokeLinejoin="round"
+              style={{ transform: collapsed ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s ease' }}
             >
               <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+          <button
+            className="widget-close-btn"
+            onClick={handleClose}
+            aria-label="Close"
+            title="Close DailyDo"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
         </div>
@@ -163,7 +174,7 @@ export default function Widget({
         </div>
       )}
 
-      {/* SE corner resize grip — visible only in Tauri via CSS */}
+      {/* SE corner resize grip */}
       <div
         className="resize-grip"
         onMouseDown={handleResizeMouseDown}

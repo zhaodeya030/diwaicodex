@@ -90,9 +90,18 @@ html[data-tauri='1'] .widget-collapsed-summary {
   color: var(--fg);
 }
 
+.widget-close-btn {
+  display: none; /* hidden in browser — no need to close a webpage */
+}
+
+html[data-tauri='1'] .widget-close-btn {
+  display: flex;
+}
+
 .widget-collapse-btn,
 .widget-history-btn,
-.widget-back-btn {
+.widget-back-btn,
+.widget-close-btn {
   background: none;
   border: none;
   cursor: pointer;
@@ -110,6 +119,11 @@ html[data-tauri='1'] .widget-collapsed-summary {
 .widget-back-btn:hover {
   background: var(--btn-subtle);
   color: var(--fg);
+}
+
+.widget-close-btn:hover {
+  background: rgba(255, 69, 58, 0.18);
+  color: var(--red);
 }
 
 .widget-collapsed-summary {
